@@ -368,9 +368,9 @@ func initialize(c echo.Context) error {
 	dbEstate.Select(&estates, "SELECT id, features FROM estate WHERE features <> ''")
 
 	wg := &sync.WaitGroup{}
+	wg.Add(2)
 
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 		tx, err := dbChair.Begin()
 		if err != nil {
@@ -399,7 +399,6 @@ func initialize(c echo.Context) error {
 	}()
 
 	go func() {
-		wg.Add(1)
 		defer wg.Done()
 
 		tx, err := dbEstate.Begin()
