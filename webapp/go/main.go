@@ -271,9 +271,9 @@ func init() {
 }
 
 func main() {
-	go func() {
-		http.ListenAndServe("localhost:6060", nil)
-	}()
+	// go func() {
+	// 	http.ListenAndServe("localhost:6060", nil)
+	// }()
 	// Echo instance
 	e := echo.New()
 	//e.Debug = true
