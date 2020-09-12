@@ -905,9 +905,10 @@ func searchEstates(c echo.Context) error {
 
 		featureIdsLen := len(featureIds)
 		if featureIdsLen > 0 {
-			query, args, _ := sqlx.In("SELECT estate_id FROM estate_features WHERE feature_id IN (?) GROUP BY estate_id HAVING COUNT(*)=?", featureIds, featureIdsLen)
-			conditions = append(conditions, fmt.Sprintf("id IN (%s)", query))
+			query, args, _ := sqlx.In("SELECT estate_id FROM estate_features WHERE feature_id IN (?)", featureIds)
+			conditions = append(conditions, fmt.Sprintf("id IN (%s GROUP BY estate_id HAVING COUNT(*)=?)", query))
 			params = append(params, args...)
+			params = append(params, featureIdsLen)
 		}
 	}
 
