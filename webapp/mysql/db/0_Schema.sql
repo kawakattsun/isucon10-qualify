@@ -48,11 +48,11 @@ CREATE TABLE isuumo.estate
     KEY idx_1(door_height, door_width),
     KEY idx_2(latitude),
     KEY idx_3(rent),
-    KEY idx_4(popularity),
-    KEY idx_5(door_height_id),
-    KEY idx_6(door_width_id),
-    KEY idx_7(rent_id),
-    KEY idx_8(latlon)
+    KEY idx_4(popularity)
+    -- KEY idx_5(door_height_id),
+    -- KEY idx_6(door_width_id),
+    -- KEY idx_7(rent_id),
+    -- KEY idx_8(latlon)
 );
 
 CREATE TABLE isuumo.chair
@@ -107,11 +107,11 @@ CREATE TABLE isuumo.chair
     KEY idx_1(price, height, width, depth, kind, color),
     KEY idx_2(stock),
     KEY idx_3(price),
-    KEY idx_4(popularity),
-    KEY idx_5(height_id),
-    KEY idx_6(width_id),
-    KEY idx_7(depth_id),
-    KEY idx_8(price_id)
+    KEY idx_4(popularity)
+    -- KEY idx_5(height_id),
+    -- KEY idx_6(width_id),
+    -- KEY idx_7(depth_id),
+    -- KEY idx_8(price_id)
 );
 
 CREATE TABLE isuumo.chair_features
