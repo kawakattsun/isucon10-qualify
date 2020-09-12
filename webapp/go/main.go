@@ -895,16 +895,21 @@ func searchEstates(c echo.Context) error {
 		//	params = append(params, f)
 		//}
 
+		badFalg := false
 		featureIds := []int{}
 		for _, f := range strings.Split(c.QueryParam("features"), ",") {
 			featureId, isGet := estateFeatures[f]
 			if isGet {
 				featureIds = append(featureIds, featureId)
+			} else {
+				badFalg = true
 			}
 		}
 
 		featureIdsLen := len(featureIds)
-		if featureIdsLen > 0 {
+		if badFalg {
+			conditions = append(conditions, "id = 0")
+		} else if featureIdsLen > 0 {
 			query, args, _ := sqlx.In("SELECT estate_id FROM estate_features WHERE feature_id IN (?)", featureIds)
 			conditions = append(conditions, fmt.Sprintf("id IN (%s GROUP BY estate_id HAVING COUNT(*)=?)", query))
 			params = append(params, args...)
