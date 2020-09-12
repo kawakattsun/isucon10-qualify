@@ -30,10 +30,10 @@ var mySQLConnectionData *MySQLConnectionEnv
 var chairSearchCondition ChairSearchCondition
 var estateSearchCondition EstateSearchCondition
 
-var estateFeatures map[string]int
-var chairColors map[string]int
-var chairFeatures map[string]int
-var chairKinds map[string]int
+var estateFeatures = make(map[string]int, 0)
+var chairColors = make(map[string]int, 0)
+var chairFeatures = make(map[string]int, 0)
+var chairKinds = make(map[string]int, 0)
 
 type InitializeResponse struct {
 	Language string `json:"language"`
