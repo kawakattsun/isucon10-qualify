@@ -218,11 +218,11 @@ func NewMySQLConnectionEnv() *MySQLConnectionEnv {
 
 func NewMySQLChairConnectionEnv() *MySQLConnectionEnv {
 	return &MySQLConnectionEnv{
-		Host:     getEnv("MYSQL_CHAIR_HOST", "127.0.0.1"),
-		Port:     getEnv("MYSQL_CHAIR_PORT", "3306"),
-		User:     getEnv("MYSQL_CHAIR_USER", "isucon"),
-		DBName:   getEnv("MYSQL_CHAIR_DBNAME", "isuumo"),
-		Password: getEnv("MYSQL_CHAIR_PASS", "isucon"),
+		Host:     "10.161.45.102",
+		Port:     getEnv("MYSQL_PORT", "3306"),
+		User:     getEnv("MYSQL_USER", "isucon"),
+		DBName:   getEnv("MYSQL_DBNAME", "isuumo"),
+		Password: getEnv("MYSQL_PASS", "isucon"),
 	}
 }
 
@@ -342,15 +342,27 @@ func initialize(c echo.Context) error {
 			c.Logger().Errorf("Initialize script error : %v", err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
+		cmdStr = fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
+			mySQLConnectionDataChair.Host,
+			mySQLConnectionDataChair.User,
+			mySQLConnectionDataChair.Password,
+			mySQLConnectionDataChair.Port,
+			mySQLConnectionDataChair.DBName,
+			sqlFile,
+		)
+		if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
+			c.Logger().Errorf("Initialize script error : %v", err)
+			return c.NoContent(http.StatusInternalServerError)
+		}
 	}
 
 	chairs := []Chair{}
-	db.Select(&chairs, "SELECT id, features FROM chair WHERE features <> ''")
+	dbChair.Select(&chairs, "SELECT id, features FROM chair WHERE features <> ''")
 
 	estates := []Estate{}
-	db.Select(&estates, "SELECT id, features FROM estate <> ''")
+	dbEstate.Select(&estates, "SELECT id, features FROM estate WHERE features <> ''")
 
-	tx, err := db.Begin()
+	tx, err := dbChair.Begin()
 	if err != nil {
 		c.Logger().Errorf("failed to begin tx: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
@@ -370,6 +382,18 @@ func initialize(c echo.Context) error {
 		}
 	}
 
+	if err := tx.Commit(); err != nil {
+		c.Logger().Errorf("failed to commit tx: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	tx, err = dbEstate.Begin()
+	if err != nil {
+		c.Logger().Errorf("failed to begin tx: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
+
 	for _, estate := range estates {
 		for _, f := range strings.Split(estate.Features, ",") {
 			feature, isGet := estateFeatures[f]
@@ -381,11 +405,6 @@ func initialize(c echo.Context) error {
 				}
 			}
 		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		c.Logger().Errorf("failed to commit tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusOK, InitializeResponse{
