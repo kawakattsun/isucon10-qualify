@@ -30,6 +30,11 @@ var mySQLConnectionData *MySQLConnectionEnv
 var chairSearchCondition ChairSearchCondition
 var estateSearchCondition EstateSearchCondition
 
+var estateFeatures map[string]int
+var chairColors map[string]int
+var chairFeatures map[string]int
+var chairKinds map[string]int
+
 type InitializeResponse struct {
 	Language string `json:"language"`
 }
@@ -232,6 +237,15 @@ func init() {
 		os.Exit(1)
 	}
 	json.Unmarshal(jsonText, &chairSearchCondition)
+	for i, s := range chairSearchCondition.Color.List {
+		chairColors[s] = i
+	}
+	for i, s := range chairSearchCondition.Feature.List {
+		chairFeatures[s] = i
+	}
+	for i, s := range chairSearchCondition.Kind.List {
+		chairKinds[s] = i
+	}
 
 	jsonText, err = ioutil.ReadFile("../fixture/estate_condition.json")
 	if err != nil {
@@ -239,6 +253,9 @@ func init() {
 		os.Exit(1)
 	}
 	json.Unmarshal(jsonText, &estateSearchCondition)
+	for i, s := range estateSearchCondition.Feature.List {
+		estateFeatures[s] = i
+	}
 }
 
 func main() {
