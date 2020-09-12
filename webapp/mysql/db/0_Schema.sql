@@ -45,3 +45,27 @@ CREATE TABLE isuumo.chair
     KEY idx_3(price),
     KEY idx_4(popularity)
 );
+
+CREATE TABLE isuumo.chair_color
+(
+    chair_id          INTEGER         NOT NULL PRIMARY KEY,
+    color_id          INTEGER         NOT NULL PRIMARY KEY,
+);
+
+CREATE TABLE isuumo.chair_features
+(
+    chair_id          INTEGER         NOT NULL PRIMARY KEY,
+    feature_id        INTEGER         NOT NULL PRIMARY KEY,
+);
+
+CREATE TABLE isuumo.chair_kinds
+(
+    chair_id          INTEGER         NOT NULL PRIMARY KEY,
+    kind_id           INTEGER         NOT NULL PRIMARY KEY,
+);
+
+CREATE TABLE isuumo.estate_features
+(
+    estate_id          INTEGER         NOT NULL PRIMARY KEY,
+    feature_id         INTEGER         NOT NULL PRIMARY KEY,
+);
