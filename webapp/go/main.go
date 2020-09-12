@@ -890,9 +890,24 @@ func searchEstates(c echo.Context) error {
 	}
 
 	if c.QueryParam("features") != "" {
+		//for _, f := range strings.Split(c.QueryParam("features"), ",") {
+		//	conditions = append(conditions, "features like concat('%', ?, '%')")
+		//	params = append(params, f)
+		//}
+
+		featureIds := []int{}
 		for _, f := range strings.Split(c.QueryParam("features"), ",") {
-			conditions = append(conditions, "features like concat('%', ?, '%')")
-			params = append(params, f)
+			featureId, isGet := estateFeatures[f]
+			if isGet {
+				featureIds = append(featureIds, featureId)
+			}
+		}
+
+		featureIdsLen := len(featureIds)
+		if featureIdsLen > 0 {
+			query, args, _ := sqlx.In("SELECT estate_id FROM estate_features WHERE feature_id IN (?) GROUP BY estate_id HAVING COUNT(*)=?", featureIds, featureIdsLen)
+			conditions = append(conditions, fmt.Sprintf("id IN (%s)", query))
+			params = append(params, args...)
 		}
 	}
 
