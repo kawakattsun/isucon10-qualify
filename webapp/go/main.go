@@ -304,7 +304,7 @@ func main() {
 	if err != nil {
 		e.Logger.Fatalf("DB connection failed : %v", err)
 	}
-	dbEstate.SetMaxOpenConns(10)
+	dbEstate.SetMaxOpenConns(5)
 	defer dbEstate.Close()
 
 	mySQLConnectionDataChair = NewMySQLChairConnectionEnv()
@@ -313,7 +313,7 @@ func main() {
 	if err != nil {
 		e.Logger.Fatalf("DB connection failed : %v", err)
 	}
-	dbChair.SetMaxOpenConns(10)
+	dbChair.SetMaxOpenConns(5)
 	defer dbChair.Close()
 
 	// Start server
