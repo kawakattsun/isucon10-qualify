@@ -3,14 +3,11 @@ SLACKRAW := slackcat --channel isucon10-kyoto-sweets
 
 PPROF:=go tool pprof -png -output pprof.png http://localhost:6060/debug/pprof/profile
 
-PROJECT_ROOT:=/home/isucon/isucari
-BUILD_DIR:=/home/isucon/isucari/webapp/go
-BIN_NAME:=isucari
+PROJECT_ROOT:=/home/isucon/isuumo
+BUILD_DIR:=/home/isucon/isuumo/webapp/go
+BIN_NAME:=isuumo
 
 NGX_LOG := /var/log/nginx/access.log
-
-BUILD_DIR:=/home/isucon/isucari/webapp/go
-BIN_NAME:=isucari
 
 all:
 	@echo 'Not configure. all'
@@ -21,14 +18,14 @@ build:
 	go build -o $(BIN_NAME)
 
 restart: 
-	sudo systemctl restart isucari.golang.service
+	sudo systemctl restart isuumo.go.service
 
 git-pull:
 	git pull origin $(git rev-parse --abbrev-ref HEAD)
 
 .PHONY: log
 log: 
-	sudo journalctl -u isucari.golang -n10 -f
+	sudo journalctl -u isuumo.golang -n10 -f
 
 deploy: git-pull build restart
 
