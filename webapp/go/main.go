@@ -886,7 +886,7 @@ func searchRecommendedEstateWithChair(c echo.Context) error {
 		}
 	}
 	// query = `SELECT * FROM estate WHERE (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) ORDER BY popularity DESC, id ASC LIMIT ?`
-	query = `SELECT * FROM estate WHERE (door_width >= ? AND door_height >= ?) UNION SELECT * FROM estate (door_width >= ? AND door_height >= ?) ORDER BY popularity DESC, id ASC LIMIT ?`
+	query = `SELECT * FROM estate WHERE (door_width >= ? AND door_height >= ?) OR (door_width >= ? AND door_height >= ?) ORDER BY popularity DESC, id ASC LIMIT ?`
 	// err = db.Select(&estates, query, w, h, w, d, h, w, h, d, d, w, d, h, Limit)
 	err = db.Select(&estates, query, min, min2, min2, min, Limit)
 	if err != nil {
