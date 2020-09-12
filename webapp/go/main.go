@@ -508,6 +508,16 @@ func postChair(c echo.Context) error {
 			c.Logger().Errorf("failed to insert chair: %v", err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
+		for _, f := range strings.Split(features, ",") {
+			feature, isGet := chairFeatures[f]
+			if isGet {
+				_, err = tx.Exec("INSERT INTO chair_features(chair_id, feature_id) VALUES(?,?)", id, feature)
+				if err != nil {
+					c.Logger().Errorf("failed to insert chair_features: %v", err)
+					return c.NoContent(http.StatusInternalServerError)
+				}
+			}
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		c.Logger().Errorf("failed to commit tx: %v", err)
@@ -804,6 +814,17 @@ func postEstate(c echo.Context) error {
 		if err != nil {
 			c.Logger().Errorf("failed to insert estate: %v", err)
 			return c.NoContent(http.StatusInternalServerError)
+		}
+
+		for _, f := range strings.Split(features, ",") {
+			feature, isGet := estateFeatures[f]
+			if isGet {
+				_, err = tx.Exec("INSERT INTO estate_features(estate_id, feature_id) VALUES(?,?)", id, feature)
+				if err != nil {
+					c.Logger().Errorf("failed to insert estate_features: %v", err)
+					return c.NoContent(http.StatusInternalServerError)
+				}
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
