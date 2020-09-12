@@ -21,7 +21,7 @@ restart:
 	sudo systemctl restart isuumo.go.service
 
 git-pull:
-	git pull origin $(git rev-parse --abbrev-ref HEAD)
+	git pull origin master
 
 .PHONY: log
 log: 
