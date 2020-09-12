@@ -3,9 +3,7 @@ CREATE DATABASE isuumo;
 
 DROP TABLE IF EXISTS isuumo.estate;
 DROP TABLE IF EXISTS isuumo.chair;
-DROP TABLE IF EXISTS isuumo.chair_colors;
 DROP TABLE IF EXISTS isuumo.chair_features;
-DROP TABLE IF EXISTS isuumo.chair_kinds;
 DROP TABLE IF EXISTS isuumo.estate_features;
 
 CREATE TABLE isuumo.estate
