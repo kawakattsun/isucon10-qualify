@@ -326,7 +326,7 @@ func initialize(c echo.Context) error {
 	paths := map[string]string{
 		"schema": filepath.Join(sqlDir, "0_Schema.sql"),
 		"estate": filepath.Join(sqlDir, "1_DummyEstateData.sql"),
-		"cahir":  filepath.Join(sqlDir, "2_DummyChairData.sql"),
+		"chair":  filepath.Join(sqlDir, "2_DummyChairData.sql"),
 	}
 
 	for key, p := range paths {
