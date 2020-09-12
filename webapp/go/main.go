@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	_ "net/http/pprof"
 
@@ -322,37 +323,41 @@ func main() {
 
 func initialize(c echo.Context) error {
 	sqlDir := filepath.Join("..", "mysql", "db")
-	paths := []string{
-		filepath.Join(sqlDir, "0_Schema.sql"),
-		filepath.Join(sqlDir, "1_DummyEstateData.sql"),
-		filepath.Join(sqlDir, "2_DummyChairData.sql"),
+	paths := map[string]string{
+		"schema": filepath.Join(sqlDir, "0_Schema.sql"),
+		"estate": filepath.Join(sqlDir, "1_DummyEstateData.sql"),
+		"cahir":  filepath.Join(sqlDir, "2_DummyChairData.sql"),
 	}
 
-	for _, p := range paths {
+	for key, p := range paths {
 		sqlFile, _ := filepath.Abs(p)
-		cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
-			mySQLConnectionData.Host,
-			mySQLConnectionData.User,
-			mySQLConnectionData.Password,
-			mySQLConnectionData.Port,
-			mySQLConnectionData.DBName,
-			sqlFile,
-		)
-		if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
-			c.Logger().Errorf("Initialize script error : %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+		if key == "schema" || key == "estate" {
+			cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
+				mySQLConnectionData.Host,
+				mySQLConnectionData.User,
+				mySQLConnectionData.Password,
+				mySQLConnectionData.Port,
+				mySQLConnectionData.DBName,
+				sqlFile,
+			)
+			if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
+				c.Logger().Errorf("Initialize script error : %v", err)
+				return c.NoContent(http.StatusInternalServerError)
+			}
 		}
-		cmdStr = fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
-			mySQLConnectionDataChair.Host,
-			mySQLConnectionDataChair.User,
-			mySQLConnectionDataChair.Password,
-			mySQLConnectionDataChair.Port,
-			mySQLConnectionDataChair.DBName,
-			sqlFile,
-		)
-		if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
-			c.Logger().Errorf("Initialize script error : %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+		if key == "schema" || key == "chair" {
+			cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
+				mySQLConnectionDataChair.Host,
+				mySQLConnectionDataChair.User,
+				mySQLConnectionDataChair.Password,
+				mySQLConnectionDataChair.Port,
+				mySQLConnectionDataChair.DBName,
+				sqlFile,
+			)
+			if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
+				c.Logger().Errorf("Initialize script error : %v", err)
+				return c.NoContent(http.StatusInternalServerError)
+			}
 		}
 	}
 
@@ -362,50 +367,68 @@ func initialize(c echo.Context) error {
 	estates := []Estate{}
 	dbEstate.Select(&estates, "SELECT id, features FROM estate WHERE features <> ''")
 
-	tx, err := dbChair.Begin()
-	if err != nil {
-		c.Logger().Errorf("failed to begin tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	defer tx.Rollback()
+	wg := &sync.WaitGroup{}
 
-	for _, chair := range chairs {
-		for _, f := range strings.Split(chair.Features, ",") {
-			feature, isGet := chairFeatures[f]
-			if isGet {
-				_, err = tx.Exec("INSERT INTO chair_features(chair_id, feature_id) VALUES(?,?)", chair.ID, feature)
-				if err != nil {
-					c.Logger().Errorf("failed to insert chair_features: %v", err)
-					return c.NoContent(http.StatusInternalServerError)
+	go func() {
+		wg.Add(1)
+		defer wg.Done()
+		tx, err := dbChair.Begin()
+		if err != nil {
+			c.Logger().Errorf("failed to begin tx: %v", err)
+			// return c.NoContent(http.StatusInternalServerError)
+		}
+		defer tx.Rollback()
+
+		for _, chair := range chairs {
+			for _, f := range strings.Split(chair.Features, ",") {
+				feature, isGet := chairFeatures[f]
+				if isGet {
+					_, err = tx.Exec("INSERT INTO chair_features(chair_id, feature_id) VALUES(?,?)", chair.ID, feature)
+					if err != nil {
+						c.Logger().Errorf("failed to insert chair_features: %v", err)
+						// return c.NoContent(http.StatusInternalServerError)
+					}
 				}
 			}
 		}
-	}
 
-	if err := tx.Commit(); err != nil {
-		c.Logger().Errorf("failed to commit tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
+		if err := tx.Commit(); err != nil {
+			c.Logger().Errorf("failed to commit tx: %v", err)
+			// return c.NoContent(http.StatusInternalServerError)
+		}
+	}()
 
-	tx, err = dbEstate.Begin()
-	if err != nil {
-		c.Logger().Errorf("failed to begin tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	defer tx.Rollback()
+	go func() {
+		wg.Add(1)
+		defer wg.Done()
 
-	for _, estate := range estates {
-		for _, f := range strings.Split(estate.Features, ",") {
-			feature, isGet := estateFeatures[f]
-			if isGet {
-				_, err = tx.Exec("INSERT INTO estate_features(estate_id, feature_id) VALUES(?,?)", estate.ID, feature)
-				if err != nil {
-					c.Logger().Errorf("failed to insert estate_features: %v", err)
-					return c.NoContent(http.StatusInternalServerError)
+		tx, err := dbEstate.Begin()
+		if err != nil {
+			c.Logger().Errorf("failed to begin tx: %v", err)
+			// return c.NoContent(http.StatusInternalServerError)
+		}
+		defer tx.Rollback()
+
+		for _, estate := range estates {
+			for _, f := range strings.Split(estate.Features, ",") {
+				feature, isGet := estateFeatures[f]
+				if isGet {
+					_, err = tx.Exec("INSERT INTO estate_features(estate_id, feature_id) VALUES(?,?)", estate.ID, feature)
+					if err != nil {
+						c.Logger().Errorf("failed to insert estate_features: %v", err)
+						// return c.NoContent(http.StatusInternalServerError)
+					}
 				}
 			}
 		}
-	}
+
+		if err := tx.Commit(); err != nil {
+			c.Logger().Errorf("failed to commit tx: %v", err)
+			// return c.NoContent(http.StatusInternalServerError)
+		}
+	}()
+
+	wg.Wait()
 
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
