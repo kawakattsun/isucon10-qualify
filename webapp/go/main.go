@@ -331,6 +331,12 @@ func initialize(c echo.Context) error {
 		}
 	}
 
+	chairs := []Chair{}
+	db.Select(&chairs, "SELECT id, color, features, kind FROM chair")
+
+	estates := []Estate{}
+	db.Select(&estates, "SELECT id, features FROM estate")
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
