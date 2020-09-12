@@ -608,9 +608,30 @@ func searchChairs(c echo.Context) error {
 	}
 
 	if c.QueryParam("features") != "" {
+		//for _, f := range strings.Split(c.QueryParam("features"), ",") {
+		//	conditions = append(conditions, "features LIKE CONCAT('%', ?, '%')")
+		//	params = append(params, f)
+		//}
+
+		badFlag := false
+		featureIds := []int{}
 		for _, f := range strings.Split(c.QueryParam("features"), ",") {
-			conditions = append(conditions, "features LIKE CONCAT('%', ?, '%')")
-			params = append(params, f)
+			featureId, isGet := chairFeatures[f]
+			if isGet {
+				featureIds = append(featureIds, featureId)
+			} else {
+				badFlag = true
+			}
+		}
+
+		featureIdsLen := len(featureIds)
+		if badFlag {
+			conditions = append(conditions, "id = 0")
+		} else if featureIdsLen > 0 {
+			query, args, _ := sqlx.In("SELECT chair_id FROM chair_features WHERE feature_id IN (?)", featureIds)
+			conditions = append(conditions, fmt.Sprintf("id IN (%s GROUP BY chair_id HAVING COUNT(*)=?)", query))
+			params = append(params, args...)
+			params = append(params, featureIdsLen)
 		}
 	}
 
