@@ -337,6 +337,54 @@ func initialize(c echo.Context) error {
 	estates := []Estate{}
 	db.Select(&estates, "SELECT id, features FROM estate")
 
+	tx, err := db.Begin()
+	if err != nil {
+		c.Logger().Errorf("failed to begin tx: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
+
+	for _, chair := range chairs {
+		_, err = tx.Exec("INSERT INTO chair_colors(chair_id, color_id) VALUES(?,?)", chair.ID, chairColors[chair.Color])
+		if err != nil {
+			c.Logger().Errorf("failed to insert chair_colors: %v", err)
+			return c.NoContent(http.StatusInternalServerError)
+		}
+		for _, f := range strings.Split(chair.Features, ",") {
+			feature, isGet := estateFeatures[f]
+			if isGet {
+				_, err = tx.Exec("INSERT INTO chair_features(chair_id, feature_id) VALUES(?,?)", chair.ID, feature)
+				if err != nil {
+					c.Logger().Errorf("failed to insert chair_features: %v", err)
+					return c.NoContent(http.StatusInternalServerError)
+				}
+			}
+		}
+		_, err = tx.Exec("INSERT INTO chair_kinds(chair_id, kind_id) VALUES(?,?)", chair.ID, chairKinds[chair.Kind])
+		if err != nil {
+			c.Logger().Errorf("failed to insert chair_kinds: %v", err)
+			return c.NoContent(http.StatusInternalServerError)
+		}
+	}
+
+	for _, estate := range estates {
+		for _, f := range strings.Split(estate.Features, ",") {
+			feature, isGet := estateFeatures[f]
+			if isGet {
+				_, err = tx.Exec("INSERT INTO estate_features(estate_id, feature_id) VALUES(?,?)", estate.ID, feature)
+				if err != nil {
+					c.Logger().Errorf("failed to insert estate_features: %v", err)
+					return c.NoContent(http.StatusInternalServerError)
+				}
+			}
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		c.Logger().Errorf("failed to commit tx: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
