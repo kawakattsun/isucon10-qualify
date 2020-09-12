@@ -324,10 +324,10 @@ func initialize(c echo.Context) error {
 	}
 
 	chairs := []Chair{}
-	db.Select(&chairs, "SELECT id, features FROM chair")
+	db.Select(&chairs, "SELECT id, features FROM chair WHERE features <> ''")
 
 	estates := []Estate{}
-	db.Select(&estates, "SELECT id, features FROM estate")
+	db.Select(&estates, "SELECT id, features FROM estate <> ''")
 
 	tx, err := db.Begin()
 	if err != nil {
