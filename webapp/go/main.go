@@ -351,7 +351,7 @@ func initialize(c echo.Context) error {
 			return c.NoContent(http.StatusInternalServerError)
 		}
 		for _, f := range strings.Split(chair.Features, ",") {
-			feature, isGet := estateFeatures[f]
+			feature, isGet := chairFeatures[f]
 			if isGet {
 				_, err = tx.Exec("INSERT INTO chair_features(chair_id, feature_id) VALUES(?,?)", chair.ID, feature)
 				if err != nil {
