@@ -46,9 +46,13 @@ type Chair struct {
 	Description string `db:"description" json:"description"`
 	Thumbnail   string `db:"thumbnail" json:"thumbnail"`
 	Price       int64  `db:"price" json:"price"`
+	PriceID     int64  `db:"price_id" json:"-"`
 	Height      int64  `db:"height" json:"height"`
+	HeightID    int64  `db:"height_id" json:"-"`
 	Width       int64  `db:"width" json:"width"`
+	WidthID     int64  `db:"width_id" json:"-"`
 	Depth       int64  `db:"depth" json:"depth"`
+	DepthID     int64  `db:"depth_id" json:"-"`
 	Color       string `db:"color" json:"color"`
 	Features    string `db:"features" json:"features"`
 	Kind        string `db:"kind" json:"kind"`
@@ -67,19 +71,22 @@ type ChairListResponse struct {
 
 //Estate 物件
 type Estate struct {
-	ID          int64   `db:"id" json:"id"`
-	Thumbnail   string  `db:"thumbnail" json:"thumbnail"`
-	Name        string  `db:"name" json:"name"`
-	Description string  `db:"description" json:"description"`
-	Latitude    float64 `db:"latitude" json:"latitude"`
-	Longitude   float64 `db:"longitude" json:"longitude"`
-	Latlon      string  `db:"latlon" json:"-"`
-	Address     string  `db:"address" json:"address"`
-	Rent        int64   `db:"rent" json:"rent"`
-	DoorHeight  int64   `db:"door_height" json:"doorHeight"`
-	DoorWidth   int64   `db:"door_width" json:"doorWidth"`
-	Features    string  `db:"features" json:"features"`
-	Popularity  int64   `db:"popularity" json:"-"`
+	ID           int64   `db:"id" json:"id"`
+	Thumbnail    string  `db:"thumbnail" json:"thumbnail"`
+	Name         string  `db:"name" json:"name"`
+	Description  string  `db:"description" json:"description"`
+	Latitude     float64 `db:"latitude" json:"latitude"`
+	Longitude    float64 `db:"longitude" json:"longitude"`
+	Latlon       string  `db:"latlon" json:"-"`
+	Address      string  `db:"address" json:"address"`
+	Rent         int64   `db:"rent" json:"rent"`
+	RentID       int64   `db:"rent_id" json:"-"`
+	DoorHeight   int64   `db:"door_height" json:"doorHeight"`
+	DoorHeightID int64   `db:"door_height_id" json:"-"`
+	DoorWidth    int64   `db:"door_width" json:"doorWidth"`
+	DoorWidthID  int64   `db:"door_width_id" json:"-"`
+	Features     string  `db:"features" json:"features"`
+	Popularity   int64   `db:"popularity" json:"-"`
 }
 
 //EstateSearchResponse estate/searchへのレスポンスの形式
@@ -521,71 +528,84 @@ func searchChairs(c echo.Context) error {
 	params := make([]interface{}, 0)
 
 	if c.QueryParam("priceRangeId") != "" {
-		chairPrice, err := getRange(chairSearchCondition.Price, c.QueryParam("priceRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("priceRangeID invalid, %v : %v", c.QueryParam("priceRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		chairPriceID := c.QueryParam("priceRangeId")
+		// chairPrice, err := getRange(chairSearchCondition.Price, c.QueryParam("priceRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("priceRangeID invalid, %v : %v", c.QueryParam("priceRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if chairPrice.Min != -1 {
-			conditions = append(conditions, "price >= ?")
-			params = append(params, chairPrice.Min)
-		}
-		if chairPrice.Max != -1 {
-			conditions = append(conditions, "price < ?")
-			params = append(params, chairPrice.Max)
-		}
+		// if chairPrice.Min != -1 {
+		// 	conditions = append(conditions, "price >= ?")
+		// 	params = append(params, chairPrice.Min)
+		// }
+		// if chairPrice.Max != -1 {
+		// 	conditions = append(conditions, "price < ?")
+		// 	params = append(params, chairPrice.Max)
+		// }
+		conditions = append(conditions, "price_id = ?")
+		params = append(params, chairPriceID)
 	}
 
 	if c.QueryParam("heightRangeId") != "" {
-		chairHeight, err := getRange(chairSearchCondition.Height, c.QueryParam("heightRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("heightRangeIf invalid, %v : %v", c.QueryParam("heightRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		heightRangeID := c.QueryParam("heightRangeId")
+		// chairHeight, err := getRange(chairSearchCondition.Height, c.QueryParam("heightRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("heightRangeIf invalid, %v : %v", c.QueryParam("heightRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if chairHeight.Min != -1 {
-			conditions = append(conditions, "height >= ?")
-			params = append(params, chairHeight.Min)
-		}
-		if chairHeight.Max != -1 {
-			conditions = append(conditions, "height < ?")
-			params = append(params, chairHeight.Max)
-		}
+		// if chairHeight.Min != -1 {
+		// 	conditions = append(conditions, "height >= ?")
+		// 	params = append(params, chairHeight.Min)
+		// }
+		// if chairHeight.Max != -1 {
+		// 	conditions = append(conditions, "height < ?")
+		// 	params = append(params, chairHeight.Max)
+		// }
+
+		conditions = append(conditions, "height_id = ?")
+		params = append(params, heightRangeID)
 	}
 
 	if c.QueryParam("widthRangeId") != "" {
-		chairWidth, err := getRange(chairSearchCondition.Width, c.QueryParam("widthRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("widthRangeID invalid, %v : %v", c.QueryParam("widthRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		widthRangeID := c.QueryParam("widthRangeId")
+		// chairWidth, err := getRange(chairSearchCondition.Width, c.QueryParam("widthRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("widthRangeID invalid, %v : %v", c.QueryParam("widthRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if chairWidth.Min != -1 {
-			conditions = append(conditions, "width >= ?")
-			params = append(params, chairWidth.Min)
-		}
-		if chairWidth.Max != -1 {
-			conditions = append(conditions, "width < ?")
-			params = append(params, chairWidth.Max)
-		}
+		// if chairWidth.Min != -1 {
+		// 	conditions = append(conditions, "width >= ?")
+		// 	params = append(params, chairWidth.Min)
+		// }
+		// if chairWidth.Max != -1 {
+		// 	conditions = append(conditions, "width < ?")
+		// 	params = append(params, chairWidth.Max)
+		// }
+		conditions = append(conditions, "width_id = ?")
+		params = append(params, widthRangeID)
 	}
 
 	if c.QueryParam("depthRangeId") != "" {
-		chairDepth, err := getRange(chairSearchCondition.Depth, c.QueryParam("depthRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("depthRangeId invalid, %v : %v", c.QueryParam("depthRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		depthRangeID := c.QueryParam("depthRangeId")
+		// chairDepth, err := getRange(chairSearchCondition.Depth, c.QueryParam("depthRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("depthRangeId invalid, %v : %v", c.QueryParam("depthRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if chairDepth.Min != -1 {
-			conditions = append(conditions, "depth >= ?")
-			params = append(params, chairDepth.Min)
-		}
-		if chairDepth.Max != -1 {
-			conditions = append(conditions, "depth < ?")
-			params = append(params, chairDepth.Max)
-		}
+		// if chairDepth.Min != -1 {
+		// 	conditions = append(conditions, "depth >= ?")
+		// 	params = append(params, chairDepth.Min)
+		// }
+		// if chairDepth.Max != -1 {
+		// 	conditions = append(conditions, "depth < ?")
+		// 	params = append(params, chairDepth.Max)
+		// }
+		conditions = append(conditions, "depth_id = ?")
+		params = append(params, depthRangeID)
 	}
 
 	if c.QueryParam("kind") != "" {
@@ -818,60 +838,70 @@ func searchEstates(c echo.Context) error {
 	params := make([]interface{}, 0)
 
 	if c.QueryParam("doorHeightRangeId") != "" {
-		doorHeight, err := getRange(estateSearchCondition.DoorHeight, c.QueryParam("doorHeightRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("doorHeightRangeID invalid, %v : %v", c.QueryParam("doorHeightRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		doorHeightID := c.QueryParam("doorHeightRangeId")
+		// doorHeight, err := getRange(estateSearchCondition.DoorHeight, c.QueryParam("doorHeightRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("doorHeightRangeID invalid, %v : %v", c.QueryParam("doorHeightRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if doorHeight.Min != -1 {
-			conditions = append(conditions, "door_height >= ?")
-			params = append(params, doorHeight.Min)
-		}
-		if doorHeight.Max != -1 {
-			conditions = append(conditions, "door_height < ?")
-			params = append(params, doorHeight.Max)
-		}
+		// if doorHeight.Min != -1 {
+		// 	conditions = append(conditions, "door_height >= ?")
+		// 	params = append(params, doorHeight.Min)
+		// }
+		// if doorHeight.Max != -1 {
+		// 	conditions = append(conditions, "door_height < ?")
+		// 	params = append(params, doorHeight.Max)
+		// }
+		conditions = append(conditions, "door_height_id = ?")
+		params = append(params, doorHeightID)
 	}
 
 	if c.QueryParam("doorWidthRangeId") != "" {
-		doorWidth, err := getRange(estateSearchCondition.DoorWidth, c.QueryParam("doorWidthRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("doorWidthRangeID invalid, %v : %v", c.QueryParam("doorWidthRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		doorWidthRangeID := c.QueryParam("doorWidthRangeId")
 
-		if doorWidth.Min != -1 {
-			conditions = append(conditions, "door_width >= ?")
-			params = append(params, doorWidth.Min)
-		}
-		if doorWidth.Max != -1 {
-			conditions = append(conditions, "door_width < ?")
-			params = append(params, doorWidth.Max)
-		}
+		// doorWidth, err := getRange(estateSearchCondition.DoorWidth, c.QueryParam("doorWidthRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("doorWidthRangeID invalid, %v : %v", c.QueryParam("doorWidthRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
+
+		// if doorWidth.Min != -1 {
+		// 	conditions = append(conditions, "door_width >= ?")
+		// 	params = append(params, doorWidth.Min)
+		// }
+		// if doorWidth.Max != -1 {
+		// 	conditions = append(conditions, "door_width < ?")
+		// 	params = append(params, doorWidth.Max)
+		// }
+		conditions = append(conditions, "door_width_id = ?")
+		params = append(params, doorWidthRangeID)
 	}
 
 	if c.QueryParam("rentRangeId") != "" {
-		estateRent, err := getRange(estateSearchCondition.Rent, c.QueryParam("rentRangeId"))
-		if err != nil {
-			c.Echo().Logger.Infof("rentRangeID invalid, %v : %v", c.QueryParam("rentRangeId"), err)
-			return c.NoContent(http.StatusBadRequest)
-		}
+		estateRentID := c.QueryParam("rentRangeId")
+		// estateRent, err := getRange(estateSearchCondition.Rent, c.QueryParam("rentRangeId"))
+		// if err != nil {
+		// 	c.Echo().Logger.Infof("rentRangeID invalid, %v : %v", c.QueryParam("rentRangeId"), err)
+		// 	return c.NoContent(http.StatusBadRequest)
+		// }
 
-		if estateRent.Min != -1 {
-			conditions = append(conditions, "rent >= ?")
-			params = append(params, estateRent.Min)
-		}
-		if estateRent.Max != -1 {
-			conditions = append(conditions, "rent < ?")
-			params = append(params, estateRent.Max)
-		}
+		// if estateRent.Min != -1 {
+		// 	conditions = append(conditions, "rent >= ?")
+		// 	params = append(params, estateRent.Min)
+		// }
+		// if estateRent.Max != -1 {
+		// 	conditions = append(conditions, "rent < ?")
+		// 	params = append(params, estateRent.Max)
+		// }
+		conditions = append(conditions, "rent_id = ?")
+		params = append(params, estateRentID)
 	}
 
 	if c.QueryParam("features") != "" {
 		for _, f := range strings.Split(c.QueryParam("features"), ",") {
-			conditions = append(conditions, "features like concat('%', ?, '%')")
-			params = append(params, f)
+			conditions = append(conditions, "features like ?")
+			params = append(params, "%"+f+"%")
 		}
 	}
 
