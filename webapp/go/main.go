@@ -67,6 +67,7 @@ type Estate struct {
 	Description string  `db:"description" json:"description"`
 	Latitude    float64 `db:"latitude" json:"latitude"`
 	Longitude   float64 `db:"longitude" json:"longitude"`
+	Latlon      string  `db:"latlon" json:"-"`
 	Address     string  `db:"address" json:"address"`
 	Rent        int64   `db:"rent" json:"rent"`
 	DoorHeight  int64   `db:"door_height" json:"doorHeight"`
