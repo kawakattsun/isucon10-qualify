@@ -3,6 +3,10 @@ CREATE DATABASE isuumo;
 
 DROP TABLE IF EXISTS isuumo.estate;
 DROP TABLE IF EXISTS isuumo.chair;
+DROP TABLE IF EXISTS isuumo.chair_colors;
+DROP TABLE IF EXISTS isuumo.chair_features;
+DROP TABLE IF EXISTS isuumo.chair_kinds;
+DROP TABLE IF EXISTS isuumo.estate_features;
 
 CREATE TABLE isuumo.estate
 (
@@ -46,26 +50,30 @@ CREATE TABLE isuumo.chair
     KEY idx_4(popularity)
 );
 
-CREATE TABLE isuumo.chair_color
+CREATE TABLE isuumo.chair_colors
 (
-    chair_id          INTEGER         NOT NULL PRIMARY KEY,
-    color_id          INTEGER         NOT NULL PRIMARY KEY
+    chair_id          INTEGER         NOT NULL,
+    color_id          INTEGER         NOT NULL,
+    PRIMARY KEY(chair_id, color_id)
 );
 
 CREATE TABLE isuumo.chair_features
 (
-    chair_id          INTEGER         NOT NULL PRIMARY KEY,
-    feature_id        INTEGER         NOT NULL PRIMARY KEY
+    chair_id          INTEGER         NOT NULL,
+    feature_id        INTEGER         NOT NULL,
+    PRIMARY KEY(chair_id, feature_id)
 );
 
 CREATE TABLE isuumo.chair_kinds
 (
-    chair_id          INTEGER         NOT NULL PRIMARY KEY,
-    kind_id           INTEGER         NOT NULL PRIMARY KEY
+    chair_id          INTEGER         NOT NULL,
+    kind_id           INTEGER         NOT NULL,
+    PRIMARY KEY(chair_id, kind_id)
 );
 
 CREATE TABLE isuumo.estate_features
 (
-    estate_id          INTEGER         NOT NULL PRIMARY KEY,
-    feature_id         INTEGER         NOT NULL PRIMARY KEY
+    estate_id          INTEGER         NOT NULL,
+    feature_id         INTEGER         NOT NULL,
+    PRIMARY KEY(estate_id, feature_id)
 );
