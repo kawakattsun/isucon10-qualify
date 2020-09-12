@@ -31,9 +31,7 @@ var chairSearchCondition ChairSearchCondition
 var estateSearchCondition EstateSearchCondition
 
 var estateFeatures = make(map[string]int, 0)
-var chairColors = make(map[string]int, 0)
 var chairFeatures = make(map[string]int, 0)
-var chairKinds = make(map[string]int, 0)
 
 type InitializeResponse struct {
 	Language string `json:"language"`
@@ -237,14 +235,8 @@ func init() {
 		os.Exit(1)
 	}
 	json.Unmarshal(jsonText, &chairSearchCondition)
-	for i, s := range chairSearchCondition.Color.List {
-		chairColors[s] = i
-	}
 	for i, s := range chairSearchCondition.Feature.List {
 		chairFeatures[s] = i
-	}
-	for i, s := range chairSearchCondition.Kind.List {
-		chairKinds[s] = i
 	}
 
 	jsonText, err = ioutil.ReadFile("../fixture/estate_condition.json")
@@ -332,7 +324,7 @@ func initialize(c echo.Context) error {
 	}
 
 	chairs := []Chair{}
-	db.Select(&chairs, "SELECT id, color, features, kind FROM chair")
+	db.Select(&chairs, "SELECT id, features FROM chair")
 
 	estates := []Estate{}
 	db.Select(&estates, "SELECT id, features FROM estate")
@@ -345,11 +337,6 @@ func initialize(c echo.Context) error {
 	defer tx.Rollback()
 
 	for _, chair := range chairs {
-		_, err = tx.Exec("INSERT INTO chair_colors(chair_id, color_id) VALUES(?,?)", chair.ID, chairColors[chair.Color])
-		if err != nil {
-			c.Logger().Errorf("failed to insert chair_colors: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
-		}
 		for _, f := range strings.Split(chair.Features, ",") {
 			feature, isGet := chairFeatures[f]
 			if isGet {
@@ -359,11 +346,6 @@ func initialize(c echo.Context) error {
 					return c.NoContent(http.StatusInternalServerError)
 				}
 			}
-		}
-		_, err = tx.Exec("INSERT INTO chair_kinds(chair_id, kind_id) VALUES(?,?)", chair.ID, chairKinds[chair.Kind])
-		if err != nil {
-			c.Logger().Errorf("failed to insert chair_kinds: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
 		}
 	}
 

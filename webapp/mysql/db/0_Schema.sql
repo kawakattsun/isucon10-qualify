@@ -50,25 +50,11 @@ CREATE TABLE isuumo.chair
     KEY idx_4(popularity)
 );
 
-CREATE TABLE isuumo.chair_colors
-(
-    chair_id          INTEGER         NOT NULL,
-    color_id          INTEGER         NOT NULL,
-    PRIMARY KEY(chair_id, color_id)
-);
-
 CREATE TABLE isuumo.chair_features
 (
     chair_id          INTEGER         NOT NULL,
     feature_id        INTEGER         NOT NULL,
     PRIMARY KEY(chair_id, feature_id)
-);
-
-CREATE TABLE isuumo.chair_kinds
-(
-    chair_id          INTEGER         NOT NULL,
-    kind_id           INTEGER         NOT NULL,
-    PRIMARY KEY(chair_id, kind_id)
 );
 
 CREATE TABLE isuumo.estate_features
