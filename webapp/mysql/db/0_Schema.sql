@@ -45,12 +45,14 @@ CREATE TABLE isuumo.estate
     ) VIRTUAL,
     features    VARCHAR(64)         NOT NULL,
     popularity  INTEGER             NOT NULL,
-    KEY idx_0(door_height, door_width),
-    KEY idx_1(door_height),
-    KEY idx_2(door_width),
-    KEY idx_3(latitude),
-    KEY idx_4(rent),
-    KEY idx_5(popularity)
+    KEY idx_1(door_height, door_width),
+    KEY idx_2(latitude),
+    KEY idx_3(rent),
+    KEY idx_4(popularity),
+    KEY idx_5(door_height_id),
+    KEY idx_6(door_width_id),
+    KEY idx_7(rent_id),
+    KEY idx_8(latlon)
 );
 
 CREATE TABLE isuumo.chair
@@ -103,14 +105,13 @@ CREATE TABLE isuumo.chair
     popularity  INTEGER         NOT NULL,
     stock       INTEGER         NOT NULL,
     KEY idx_1(price, height, width, depth, kind, color),
-    KEY idx_2(height),
-    KEY idx_3(width),
-    KEY idx_4(depth),
-    KEY idx_5(kind),
-    KEY idx_6(color),
-    KEY idx_7(stock),
-    KEY idx_8(price),
-    KEY idx_9(popularity)
+    KEY idx_2(stock),
+    KEY idx_3(price),
+    KEY idx_4(popularity),
+    KEY idx_5(height_id),
+    KEY idx_6(width_id),
+    KEY idx_7(depth_id),
+    KEY idx_8(price_id)
 );
 
 CREATE TABLE isuumo.chair_features
