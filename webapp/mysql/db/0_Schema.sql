@@ -15,7 +15,7 @@ CREATE TABLE isuumo.estate
     address     VARCHAR(128)        NOT NULL,
     latitude    DOUBLE PRECISION    NOT NULL,
     longitude   DOUBLE PRECISION    NOT NULL,
-    latlon      POINT GENERATED ALWAYS AS (ST_GeomFromText(concat('POINT(', latitude, ' ', longitude, ')'))) VIRTUAL,
+    latlon      POINT GENERATED ALWAYS AS (POINT(latitude, longitude)) STORED NOT NULL,
     rent        INTEGER             NOT NULL,
     door_height INTEGER             NOT NULL,
     door_width  INTEGER             NOT NULL,
@@ -23,9 +23,9 @@ CREATE TABLE isuumo.estate
     popularity  INTEGER             NOT NULL,
     KEY idx_1(door_height, door_width),
     KEY idx_2(latitude),
-    KEY idx_0(latlon),
     KEY idx_3(rent),
-    KEY idx_4(popularity)
+    KEY idx_4(popularity),
+    SPATIAL INDEX idx_spatial(latlon)
 );
 
 CREATE TABLE isuumo.chair
