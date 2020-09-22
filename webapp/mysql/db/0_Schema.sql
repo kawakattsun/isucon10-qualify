@@ -21,10 +21,11 @@ CREATE TABLE isuumo.estate
     door_width  INTEGER             NOT NULL,
     features    VARCHAR(64)         NOT NULL,
     popularity  INTEGER             NOT NULL,
+    popularity_desc INTEGER GENERATED ALWAYS AS (-popularity) STORED NOT NULL,
     KEY idx_1(door_height, door_width),
     KEY idx_2(latitude),
     KEY idx_3(rent),
-    KEY idx_4(popularity),
+    KEY idx_4(popularity_desc, id),
     SPATIAL INDEX idx_spatial(latlon)
 );
 
@@ -42,11 +43,12 @@ CREATE TABLE isuumo.chair
     features    VARCHAR(64)     NOT NULL,
     kind        VARCHAR(64)     NOT NULL,
     popularity  INTEGER         NOT NULL,
+    popularity_desc INTEGER GENERATED ALWAYS AS (-popularity) STORED NOT NULL,
     stock       INTEGER         NOT NULL,
     KEY idx_1(price, height, width, depth, kind, color),
     KEY idx_2(stock),
     KEY idx_3(price),
-    KEY idx_4(popularity)
+    KEY idx_4(popularity_desc, id)
 );
 
 CREATE TABLE isuumo.chair_features
